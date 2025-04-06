@@ -1,10 +1,12 @@
-🧠 VexRiscv Custom Instruction: Sphere Volume Calculator
+📘 Compiler Design Assignment
 
-This project implements a custom instruction for the VexRiscv RISC-V processor core to calculate the volume of a sphere using the formula:
+🧪 Custom VexRiscv Instruction: Sphere Volume Calculator
 
-Volume = (4 / 3) × π × r³
+This project extends the VexRiscv RISC-V processor with a custom hardware instruction to calculate the volume of a sphere, using the formula:
 
-Implemented as a Scala plugin, this instruction adds hardware-accelerated computation of the sphere volume using fixed-point arithmetic, integrated directly into the VexRiscv pipeline.
+Volume = 4/3 × π × r³
+
+The custom instruction is implemented as a Scala plugin that integrates with the VexRiscv pipeline to provide hardware acceleration for this computation.
 
 📁 Project Structure
 
@@ -22,50 +24,46 @@ VexRiscv/
 │               │   ├── Decoder.scala
 │               │   ├── FetchCachePlugin.scala
 │               │   ├── RegFilePlugin.scala
-│               │   └── SphereVolumePlugin.scala  # ✅ Custom plugin
+│               │   └── SphereVolumePlugin.scala       # ✅ Custom plugin
 │               └── demo/
-│                   └── GenCustomSimdAdd.scala    # ✅ Modified to include your plugin
+│                   └── GenCustomSimdAdd.scala         # ✅ Modified to include your plugin
 
-✅ Implementation Steps
+🧩 Implementation Steps
 
-1. Clone the VexRiscv Repository
+1. Clone the Repository
 
 git clone https://github.com/SpinalHDL/VexRiscv
 cd VexRiscv
 
-2. Create Your Custom Instruction Plugin
+2. Create the Custom Plugin
 
-Create SphereVolumePlugin.scala in:
+Create a new file: src/main/scala/vexriscv/plugin/SphereVolumePlugin.scala
 
-src/main/scala/vexriscv/plugin/
+In this file:
 
-Implement:
+Define a custom opcode
 
-Custom opcode for volume calculation
+Implement the calculation logic
 
-Computation logic for 
+Use fixed-point math (e.g. π ≈ 3.14 → 314/100)
 
-Fixed-point handling for π
+Compute r³ efficiently
 
-Pipeline integration
+3. Register the Plugin
 
-3. Register Your Plugin
+Edit src/main/scala/vexriscv/demo/GenCustomSimdAdd.scala:
 
-Edit GenCustomSimdAdd.scala:
+plugins += new SphereVolumePlugin()
 
-new SphereVolumePlugin(),
+🛠 Development Environment Setup
 
-4. Development Environment Setup
+4.1 Install SBT (Scala Build Tool)
 
-4.1 Install SBT
+Download: https://www.scala-sbt.org/download/
 
-Download from: https://www.scala-sbt.org/download/
+Install and add to PATH
 
-Add sbt to system PATH
-
-Verify:
-
-sbt --version
+Verify: sbt --version
 
 4.2 Install MSYS2 and Tools
 
@@ -76,59 +74,65 @@ pacman -S base-devel mingw-w64-x86_64-toolchain git
 
 pacman -S mingw-w64-x86_64-verilator
 
-⚒️ Build and Compile
+🏗️ Build and Compile Process
 
 5.1 Compile Scala Project
 
 sbt compile
 
-Check VexRiscv.v is generated with your plugin logic.
+This generates VexRiscv.v with your plugin logic.
 
-🔧 Testing Your Instruction
+5.2 Verify Generated Verilog
+
+Ensure SphereVolumePlugin logic is present in VexRiscv.v
+
+🧪 Testing the Custom Instruction
 
 6.1 Create C++ Testbench
 
-Create main.cpp with:
+Create a file like main.cpp:
 
-#include "VVexRiscv.h"
+Include VVexRiscv.h
 
-Set up simulation environment
+Inject test radius value to register x1
 
-Inject test values
+Observe result in x2
 
-Print results
-
-6.2 Compile with Verilator
+6.2 Compile the Testbench
 
 verilator -Wall --cc VexRiscv.v --exe main.cpp --trace
 make -C obj_dir -f VVexRiscv.mk VVexRiscv -j
 
-6.3 Run Simulation
+6.3 Run the Simulation
 
 cd obj_dir
 ./VVexRiscv
 
-📊 Mathematical & Hardware Details
+⚙️ Implementation Notes
 
-π handled using fixed-point (e.g., π ≈ 314/100)
+Mathematical Logic
 
-Efficient r³ computation
+Fixed-point π: 314/100
 
-Fixed-point vs floating-point tradeoffs
+r³ via multiplier chaining
 
-Pipelined stages for latency optimization
+Final formula: (4 * 314 * r³) / (3 * 100)
 
-✨ Assembly Usage Example
+Instruction Format
 
-# r1 contains radius value
-SPHERE_VOL r2, r1   # Custom instruction
+R-type custom instruction
 
-⏳ Future Enhancements
+Custom opcode from reserved space
 
-Add floating-point support
+Assembly Example
 
-Implement other volume formulas (cylinder, cone, etc.)
+# r1 = input radius
+SPHERE_VOL r2, r1    # r2 = volume result
 
-Wrap in C/C++ software API for usage
+🚀 Optimization Considerations
 
-Explore further RISC-V custom extensions
+Pipelining for performance
+
+Tradeoffs: single-cycle vs. multi-cycle
+
+Option to use floating-point extensions
