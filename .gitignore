@@ -37,7 +37,7 @@ bin/
 *.vcd
 *.fst*
 !tester/src/test/resources/*.vhd
-obj_dir
+
 *.logTrace
 *.yaml
 *.memTrace
